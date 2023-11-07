@@ -5,7 +5,6 @@ description = "Reusable core components for FastAPI MVC project"
 authors = ["Damir Kuzovatov <Damir.Kuzovatov@waveaccess.global>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "fastapi_core"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
