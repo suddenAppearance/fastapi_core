@@ -4,6 +4,17 @@ T = typing.TypeVar("T")
 
 
 class Context:
+    """
+    Context container
+
+    Usage::
+
+        c = Context()
+        c.attr = 'attr'
+        ...
+        attr = c.attr
+
+    """
     _context: typing.Dict[str, typing.Any]
 
     def __init__(self, context: typing.Optional[typing.Dict[str, typing.Any]] = None):
@@ -26,10 +37,23 @@ class Context:
 
 
 class BaseService:
+    """
+    Base Service with context object
+    """
     def __init__(self, context: Context, *args, **kwargs):
+        """
+        :param context: context object
+        :param args: extra args
+        :param kwargs: extra kwargs
+        """
         self.context = context
         self.args = args
         self.kwargs = kwargs
 
     def get_service(self, cls: typing.Type[T]) -> T:
+        """
+        Get Service with shared init args
+        :param cls: Service Class
+        :return: Object of Service Class initialized with same parameters
+        """
         return cls(self.context, *self.args, **self.kwargs)
