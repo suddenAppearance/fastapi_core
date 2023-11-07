@@ -2,8 +2,8 @@ from typing import AsyncGenerator, Callable
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.fastapi_core.database.sessions import get_session_factories, get_engines
-from src.fastapi_core.settings.database import DatabaseSettings
+from fastapi_core.database.sessions import get_session_factories, get_engines
+from fastapi_core.settings.database import DatabaseSettings
 
 db_settings = DatabaseSettings()
 
