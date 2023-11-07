@@ -2,14 +2,22 @@ from typing import AsyncGenerator, Callable
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.fastapi_core.database.sessions import get_session_factories, get_engines
+from src.fastapi_core.settings.database import DatabaseSettings
 
-async def get_session(async_session_factory: Callable[[], AsyncSession]) -> AsyncGenerator[AsyncSession, None]:
+db_settings = DatabaseSettings()
+
+create_session, create_async_session = get_session_factories(
+    *get_engines(db_settings.DATABASE_URL.replace("+asyncpg", ""), db_settings.DATABASE_URL))
+
+
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Session dependency async generator
     :param async_session_factory: async session factory (sessionmaker)
     :return: AsyncSession object
     """
-    session = async_session_factory()
+    session = create_async_session()
     try:
         yield session
         await session.commit()
