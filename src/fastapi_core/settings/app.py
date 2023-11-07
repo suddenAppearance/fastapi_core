@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 
 
-class APPSettings(BaseSettings):
+class APISettings(BaseSettings):
     APP_NAME: str = "Service API"
     API_VERSION: str = "production"
 
