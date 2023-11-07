@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "fastapi-core"
+version = "0.0.1"
+description = "Reusable core components for FastAPI MVC project"
+authors = ["Damir Kuzovatov <Damir.Kuzovatov@waveaccess.global>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "fastapi_core"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+uvicorn = "^0.24.0.post1"
+fastapi = "^0.104.1"
+
+
+[tool.poetry.group.database.dependencies]
+sqlalchemy = "^2.0.23"
+
+
+[tool.poetry.group.validator.dependencies]
+pydantic = "^2.4.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
