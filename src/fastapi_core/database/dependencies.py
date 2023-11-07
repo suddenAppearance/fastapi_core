@@ -12,7 +12,7 @@ db_settings = DatabaseSettings()
 
 def overridable_get_session_factories():
     return get_session_factories(
-        *get_engines(db_settings.DATABASE_URL.replace("+asyncpg", ""), db_settings.DATABASE_URL)
+        *get_engines(str(db_settings.DATABASE_URL).replace("+asyncpg", ""), str(db_settings.DATABASE_URL))
     )
 
 
