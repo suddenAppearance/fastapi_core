@@ -1,11 +1,8 @@
 import abc
-import logging
 from typing import Generic, TypeVar, Iterable
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import CompoundSelect, Delete, Select, Update
-
-logger = logging.getLogger("api")
 
 T = TypeVar("T")
 

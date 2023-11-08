@@ -23,7 +23,6 @@ class BaseServiceWithSession:
         self,
         session: AsyncSession,
         logger: Logger,
-        settings: Settings,
         container: Any,
         headers: Mapping[str, str] | None = None,
     ):
@@ -36,7 +35,6 @@ class BaseServiceWithSession:
         """
         self.session = session
         self.logger = logger
-        self.settings = settings
         self._container = container
         self._container.headers = headers or {}
 
@@ -44,7 +42,7 @@ class BaseServiceWithSession:
         placeholder = f"_{cls.__name__}"
         if not hasattr(self._container, placeholder):
             setattr(
-                self._container, placeholder, cls(self.session, self.logger, self.settings, container=self._container)
+                self._container, placeholder, cls(self.session, self.logger, container=self._container)
             )
 
         service: cls = getattr(self._container, placeholder)
@@ -71,16 +69,15 @@ class BaseServiceWithoutSession:
     """
     Same as BaseServiceWithSession but without `session` and `repo_factory()`
     """
-    def __init__(self, logger: Logger, settings: Settings, container: Any, headers: Mapping[str, str] | None = None):
+    def __init__(self, logger: Logger, container: Any, headers: Mapping[str, str] | None = None):
         self.logger = logger
-        self.settings = settings
         self._container = container
         self._container.headers = headers or {}
 
     def factory(self, cls: Type[T]) -> T:
         placeholder = f"_{cls.__name__}"
         if not hasattr(self._container, placeholder):
-            setattr(self._container, placeholder, cls(self.logger, self.settings, container=self._container))
+            setattr(self._container, placeholder, cls(self.logger, container=self._container))
 
         service: cls = getattr(self._container, placeholder)
         return service
