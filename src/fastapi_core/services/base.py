@@ -1,59 +1,94 @@
-import typing
+from logging import Logger
+from typing import Any, Mapping, Type, TypeVar
 
-T = typing.TypeVar("T")
+# try/except imports are only for type hinting purposes
+try:
+    from sqlalchemy.ext.asyncio import AsyncSession
+except ImportError:
+    AsyncSession = object
 
+# Setting class in settings.py at project root
+try:
+    from settings import Settings
+except ImportError:
+    Settings = object
 
-class Context:
-    """
-    Context container
-
-    Usage::
-
-        c = Context()
-        c.attr = 'attr'
-        ...
-        attr = c.attr
-
-    """
-    _context: typing.Dict[str, typing.Any]
-
-    def __init__(self, context: typing.Optional[typing.Dict[str, typing.Any]] = None):
-        if context is None:
-            context = {}
-        super().__setattr__("_state", context)
-
-    def __setattr__(self, key: typing.Any, value: typing.Any) -> None:
-        self._context[key] = value
-
-    def __getattr__(self, key: typing.Any) -> typing.Any:
-        try:
-            return self._context[key]
-        except KeyError:
-            message = "'{}' object has no attribute '{}'"
-            raise AttributeError(message.format(self.__class__.__name__, key))
-
-    def __delattr__(self, key: typing.Any) -> None:
-        del self._context[key]
+T = TypeVar("T")
 
 
-class BaseService:
-    """
-    Base Service with context object
-    """
-    def __init__(self, context: Context, *args, **kwargs):
+class BaseServiceWithSession:
+    """Base class with sqlalchemy.ext.asyncio.AsyncSession"""
+
+    def __init__(
+        self,
+        session: AsyncSession,
+        logger: Logger,
+        settings: Settings,
+        container: Any,
+        headers: Mapping[str, str] | None = None,
+    ):
         """
-        :param context: context object
-        :param args: extra args
-        :param kwargs: extra kwargs
+        :param session: database session
+        :param logger: shared logger
+        :param settings: application settings
+        :param container: classes container for per request singleton (request.state is suitable)
+        :param headers: request headers
         """
-        self.context = context
-        self.args = args
-        self.kwargs = kwargs
+        self.session = session
+        self.logger = logger
+        self.settings = settings
+        self._container = container
+        self._container.headers = headers or {}
 
-    def get_service(self, cls: typing.Type[T]) -> T:
-        """
-        Get Service with shared init args
-        :param cls: Service Class
-        :return: Object of Service Class initialized with same parameters
-        """
-        return cls(self.context, *self.args, **self.kwargs)
+    def factory(self, cls: Type[T]) -> T:
+        placeholder = f"_{cls.__name__}"
+        if not hasattr(self._container, placeholder):
+            setattr(
+                self._container, placeholder, cls(self.session, self.logger, self.settings, container=self._container)
+            )
+
+        service: cls = getattr(self._container, placeholder)
+        return service
+
+    def repo_factory(self, cls: Type[T]) -> T:
+        placeholder = f"_{cls.__name__}"
+        if not hasattr(self._container, placeholder):
+            setattr(self._container, placeholder, cls(self.session))
+
+        repo: cls = getattr(self._container, placeholder)
+        return repo
+
+    def gateway_factory(self, cls: Type[T], client) -> T:
+        placeholder = f"_{cls.__name__}"
+        if not hasattr(self._container, placeholder):
+            setattr(self._container, placeholder, cls(client, self._container.headers))
+
+        gateway: cls = getattr(self._container, placeholder)
+        return gateway
+
+
+class BaseServiceWithoutSession:
+    """
+    Same as BaseServiceWithSession but without `session` and `repo_factory()`
+    """
+    def __init__(self, logger: Logger, settings: Settings, container: Any, headers: Mapping[str, str] | None = None):
+        self.logger = logger
+        self.settings = settings
+        self._container = container
+        self._container.headers = headers or {}
+
+    def factory(self, cls: Type[T]) -> T:
+        placeholder = f"_{cls.__name__}"
+        if not hasattr(self._container, placeholder):
+            setattr(self._container, placeholder, cls(self.logger, self.settings, container=self._container))
+
+        service: cls = getattr(self._container, placeholder)
+        return service
+
+    def gateway_factory(self, cls: Type[T], client) -> T:
+        placeholder = f"_{cls.__name__}"
+        if not hasattr(self._container, placeholder):
+            setattr(self._container, placeholder, cls(client, self._container.headers))
+
+        gateway: cls = getattr(self._container, placeholder)
+        return gateway
