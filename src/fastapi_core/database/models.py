@@ -8,7 +8,7 @@ class SerialIDBase:
     Base Mixin for serial id primary key
     """
 
-    id: int = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
 
 
 class CreateUpdateTimestampBase:
@@ -16,8 +16,8 @@ class CreateUpdateTimestampBase:
     Base Mixin for created_at, updated_at timestamps
     """
 
-    created_at: datetime = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at: datetime = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
 class ExtendedBase(SerialIDBase, CreateUpdateTimestampBase):
