@@ -2,18 +2,23 @@ import logging
 from typing import Type, TypeVar, Callable
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
 try:
+    from sqlalchemy.ext.asyncio import AsyncSession
     from fastapi_core.database.dependencies import get_session
+
+    db = True
 except ImportError:
     get_session = NotImplemented
+    AsyncSession = NotImplemented
+
+    db = False
 
 T = TypeVar("T")
 
 
-def get_service(service: Type[T], db=True) -> Callable[..., T]:
+def get_service(service: Type[T]) -> Callable[..., T]:
     logger = logging.getLogger(service.__name__)
 
     def _get_service_with_db_session(request: Request, session: AsyncSession = Depends(get_session)):
