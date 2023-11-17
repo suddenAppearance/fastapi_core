@@ -18,7 +18,7 @@ T = TypeVar("T")
 
 
 def get_service(service: Type[T]) -> Callable[..., T]:
-    logger = logging.getLogger(service.__name__)
+    logger = logging.getLogger(f"api.{service.__name__}")
 
     db = issubclass(service, BaseServiceWithSession)
 
@@ -32,7 +32,7 @@ def get_service(service: Type[T]) -> Callable[..., T]:
 
 
 async def run_on_success(request: Request) -> AsyncGenerator[None, None]:
-    logger = logging.getLogger("run_on_success")
+    logger = logging.getLogger("api.run_on_success")
     """
     Task pool, that can only be executed after a successful response
     """
