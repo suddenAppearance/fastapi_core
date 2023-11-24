@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastapi-core"
-version = "0.2.2"
+version = "0.2.3"
 description = "Reusable core components for FastAPI MVC project"
 authors = ["Damir Kuzovatov <Damir.Kuzovatov@waveaccess.global>"]
 license = "MIT"
@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 uvicorn = "^0.24.0.post1"
-fastapi = "^0.104.1"
+fastapi = "^0.103.1"
 
 
 [tool.poetry.group.database.dependencies]
