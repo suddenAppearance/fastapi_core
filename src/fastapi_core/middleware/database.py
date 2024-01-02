@@ -30,14 +30,17 @@ def transactional_middleware_factory(create_async_session: Callable[[], AsyncSes
             response = await call_next(request)
             if lazy_session.session:
                 await lazy_session.session.commit()
+                logger.debug(f"Transaction committed for session {lazy_session.session}")
 
             return response
         except Exception:
             if lazy_session.session:
                 await lazy_session.session.rollback()
+                logger.debug(f"Transaction rolled back for session {lazy_session.session}")
             raise
         finally:
             if lazy_session.session:
                 await lazy_session.session.close()
+                logger.debug(f"Session {lazy_session.session} closed")
 
     return transactional_middleware
