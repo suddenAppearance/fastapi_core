@@ -11,7 +11,7 @@ async def json_exceptions_wrapper_middleware(request: Request, call_next: Callab
     """
     try:
         return await call_next(request)
-    except Exception as exc:  # noqa
+    except Exception as exc:
         return JSONResponse(
             {"message": f"{exc.__class__.__name__}: {exc}", "traceback": traceback.format_exception(exc)}, 500
         )

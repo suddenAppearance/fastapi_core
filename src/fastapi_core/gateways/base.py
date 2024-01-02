@@ -5,7 +5,6 @@ from typing import Callable, ClassVar, Mapping, ParamSpec, Type, TypeVar
 import pydantic
 from httpx import AsyncClient, Response
 from pydantic import AnyHttpUrl, TypeAdapter
-from starlette.requests import Request
 
 from fastapi_core.gateways.exceptions import InterServiceContractMismatchException
 from fastapi_core.settings.httpx import HTTPXConfig
@@ -16,12 +15,16 @@ T = TypeVar("T")
 
 def create_partial(func: Callable[P, T], *args, **kwargs) -> Callable[P, T]:
     """
-    Создание partial c работающим type-hinting для разработки
+    functools.partial(...) wrapper with proper type hinting
     """
     return partial(func, *args, **kwargs)
 
 
 class BaseGateway(ABC):
+    """
+    Gateway Base with shortcuts that passes headers for every request
+    """
+
     def __init__(self, client: AsyncClient, headers: Mapping[str, str]):
         self._client = client
         self.headers = self.clear_headers(headers)
@@ -38,19 +41,36 @@ class BaseGateway(ABC):
 
     @staticmethod
     def clear_params(params: dict) -> dict:
+        """
+        Clear ``None`` params.
+
+        :param params: params dictionary to be cleared.
+        :returns: cleared params.
+        """
         return {k: v for k, v in params.items() if v}
 
     @staticmethod
     def clear_headers(headers: Mapping[str, str]) -> dict:
-        not_allowed_headers = ("content-length", "host", "content-type", "user-agent")
-        headers = dict(headers)
-        return {k: v for k, v in headers.items() if k.lower() not in not_allowed_headers}
+        """
+        Clear not allowed headers that are passed when proxying
 
-    async def close(self):
-        await self._client.aclose()
+        :param headers: headers to clear.
+        :returns: cleared headers.
+        """
+        not_allowed_headers = ("content-length", "host", "content-type", "user-agent")
+        return {k: v for k, v in headers.items() if k.lower() not in not_allowed_headers}
 
     @staticmethod
     def parse_response_as(schema: Type[T], response: Response) -> T:
+        """
+        Parse `response` object into `schema` object
+
+        :param schema: Schema to unmarshall response into
+        :param response: response object
+        :returns: `schema` object if response is valid
+        :raises InterServiceContractMismatchException: `response` validation onto `schema` failed
+        :raises httpx.HTTPStatusError: `response` status code greater than or equal 400
+        """
         response.raise_for_status()
         try:
             return TypeAdapter(schema).validate_json(response.content)
@@ -67,6 +87,4 @@ class PathMappable(ABC):
 
 
 def get_async_client(url: AnyHttpUrl):
-    return AsyncClient(
-        base_url=url, timeout=HTTPXConfig().get_timeout()
-    )
+    return AsyncClient(base_url=url, timeout=HTTPXConfig().get_timeout())
