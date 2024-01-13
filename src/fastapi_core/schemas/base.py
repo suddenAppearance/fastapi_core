@@ -7,7 +7,7 @@ from fastapi_core.settings.app import APISettings
 T = TypeVar('T')
 
 
-class PaginatedRequestSchema:
+class PaginatedRequestSchema(BaseModel):
     page: Annotated[int, Field(ge=1)]
     page_size: Annotated[int, Field(ge=1)]
 
