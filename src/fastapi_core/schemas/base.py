@@ -1,13 +1,11 @@
-from typing import TypeVar, Annotated, Literal
+from typing import TypeVar, Annotated, Literal, Generic
 
 from pydantic import BaseModel, Field
-
-from fastapi_core.settings.app import APISettings
 
 T = TypeVar("T")
 
 
-class PaginatedRequestSchema(BaseModel):
+class PaginatedRequestSchema(BaseModel, Generic[T]):
     page: Annotated[int, Field(ge=1)]
     page_size: Annotated[int, Field(ge=1)]
 
