@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 T = TypeVar("T")
 
 
-class PaginatedRequestSchema(BaseModel, Generic[T]):
+class PaginatedRequestSchema(BaseModel):
     page: Annotated[int, Field(ge=1)]
     page_size: Annotated[int, Field(ge=1)]
 
@@ -20,6 +20,6 @@ class PaginatedRequestSchema(BaseModel, Generic[T]):
                 return limit, offset
 
 
-class PaginatedResponseSchema(BaseModel):
+class PaginatedResponseSchema(BaseModel, Generic[T]):
     count: int
     items: list[T]
