@@ -22,9 +22,9 @@ class LazySession:
 def transactional_middleware_factory(create_async_session: Callable[[], AsyncSession]):
     logger = logging.getLogger("api.middleware.session")
 
-    lazy_session = LazySession(factory=create_async_session, logger=logger)
-
     async def transactional_middleware(request: Request, call_next: Callable[[Request], Awaitable]):
+        lazy_session = LazySession(factory=create_async_session, logger=logger)
+
         request.state.session = lazy_session
         try:
             response = await call_next(request)
