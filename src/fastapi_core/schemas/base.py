@@ -33,3 +33,7 @@ class TokenPaginatedRequestSchema(BaseModel):
 class TokenPaginatedResponseSchema(BaseModel, Generic[T]):
     next_page_token: str | None
     items: list[T]
+
+
+class ItemsResponseSchema(BaseModel, Generic[T]):
+    items: list[T]
