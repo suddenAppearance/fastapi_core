@@ -1,6 +1,7 @@
+import logging
 from abc import ABC
 from functools import partial
-from typing import Callable, ClassVar, Mapping, ParamSpec, Type, TypeVar
+from typing import Callable, ClassVar, Mapping, ParamSpec, Type, TypeVar, Any
 
 import pydantic
 from httpx import AsyncClient, Response
@@ -86,5 +87,20 @@ class PathMappable(ABC):
         return cls.path_mapping[key]
 
 
-def get_async_client(url: AnyHttpUrl):
-    return AsyncClient(base_url=url, timeout=HTTPXConfig().get_timeout())
+logger = logging.getLogger("api.gateway")
+
+
+def log_response(response: Response):
+    logger.debug(f"\"{response.url}\" {response.status_code} {response.reason_phrase}")
+
+
+def get_async_client(url: AnyHttpUrl, **kwargs: Any):
+    return AsyncClient(
+        base_url=url,
+        event_hooks={
+            "request": [],
+            "response": [log_response],
+        },
+        timeout=HTTPXConfig().get_timeout(),
+        **kwargs
+    )
