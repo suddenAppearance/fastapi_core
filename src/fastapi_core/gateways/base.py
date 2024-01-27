@@ -90,7 +90,7 @@ class PathMappable(ABC):
 logger = logging.getLogger("api.gateway")
 
 
-def log_response(response: Response):
+async def log_response(response: Response):
     logger.debug(f"\"{response.url}\" {response.status_code} {response.reason_phrase}")
 
 
