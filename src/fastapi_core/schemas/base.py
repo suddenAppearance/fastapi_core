@@ -78,3 +78,8 @@ def token_dumps(items: list[TokenPaginationItem] | None) -> str | None:
         return None
 
     return base64.b64encode(items_list_type.dump_json(items)).decode()
+
+
+def get_next_page_filters(filters: list[TokenPaginationItem], last_item: Any):
+    for filter_ in filters:
+        filter_.value = getattr(last_item, filter_.key)
