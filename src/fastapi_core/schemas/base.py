@@ -36,6 +36,14 @@ class TokenPaginatedResponseSchema(BaseModel, Generic[T]):
     items: list[T]
 
 
+class ItemsResponseSchema(BaseModel, Generic[T]):
+    items: list[T]
+
+
+class CountSchema(BaseModel, Generic[T]):
+    count: int
+
+
 class TokenPaginationItem(BaseModel):
     key: str
     operation: Literal[">", "<"]
