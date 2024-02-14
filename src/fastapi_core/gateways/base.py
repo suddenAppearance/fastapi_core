@@ -75,7 +75,7 @@ class BaseGateway(ABC):
         """
         if not response.is_success and not optimistic:
             response.raise_for_status()
-        elif optimistic:
+        elif not response.is_success and optimistic:
             return None
 
         try:
