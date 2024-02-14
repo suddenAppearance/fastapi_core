@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastapi-core"
-version = "0.3.22"
+version = "0.3.23"
 description = "Reusable core components for FastAPI MVC project"
 authors = ["Damir Kuzovatov <Damir.Kuzovatov@waveaccess.global>"]
 license = "MIT"

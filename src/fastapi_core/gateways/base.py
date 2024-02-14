@@ -62,21 +62,29 @@ class BaseGateway(ABC):
         return {k: v for k, v in headers.items() if k.lower() not in not_allowed_headers}
 
     @staticmethod
-    def parse_response_as(schema: Type[T], response: Response) -> T:
+    def parse_response_as(schema: Type[T], response: Response, optimistic: bool = False) -> T:
         """
         Parse `response` object into `schema` object
 
         :param schema: Schema to unmarshall response into
         :param response: response object
+        :param optimistic: optimistic parse - if True, returns None on failure
         :returns: `schema` object if response is valid
         :raises InterServiceContractMismatchException: `response` validation onto `schema` failed
         :raises httpx.HTTPStatusError: `response` status code greater than or equal 400
         """
-        response.raise_for_status()
+        if not response.is_success and not optimistic:
+            response.raise_for_status()
+        elif optimistic:
+            return None
+
         try:
             return TypeAdapter(schema).validate_json(response.content)
         except pydantic.ValidationError as e:
-            raise InterServiceContractMismatchException(response, e.errors())
+            if not optimistic:
+                raise InterServiceContractMismatchException(response, e.errors())
+            else:
+                return None
 
 
 class PathMappable(ABC):
