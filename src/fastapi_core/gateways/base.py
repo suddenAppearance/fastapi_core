@@ -62,7 +62,7 @@ class BaseGateway(ABC):
         return {k: v for k, v in headers.items() if k.lower() not in not_allowed_headers}
 
     @staticmethod
-    def parse_response_as(schema: Type[T], response: Response, optimistic: bool = False) -> T:
+    def parse_response_as(schema: Type[T], response: Response, optimistic: bool = False) -> T | None:
         """
         Parse `response` object into `schema` object
 
