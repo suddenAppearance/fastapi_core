@@ -164,4 +164,4 @@ This project is in active development and is aiming to speed up writing code for
 
 ### Testing
 
-Testing and coverage is planned to be. Until that, please freeze the version you are using by setting revision tag
+Testing and coverage are planned to be soon. Until that, please freeze the version you are using by setting revision tag
