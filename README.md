@@ -129,9 +129,9 @@ class ServiceExample(BaseService):
         return self.gateway_factory(GatewayExample, gateway_example_client)
 
 ```
-This will create `GatewayExample` object and will pass BaseService._container.headers on every gateway request.
+This will create `GatewayExample` object and will pass `BaseService._container.headers` on every gateway request.
 
-You can also use fastapi's dependency injection to initiate services inside controllers:
+You can also use FastAPI dependency injection to initiate services inside controllers:
 
 ```python
 from fastapi import APIRouter, Depends
@@ -150,9 +150,9 @@ async def example(
     return await service.do_smth()
 ```
 
-`get_service()` will automatically detect whether *WithSession or *WithoutSession base is used
-and will pass session, create logger with `api.{service.__name__}` name, accessible via service.logger, 
-and will pass request headers. 
+`get_service()` will automatically create container from `request.state`, detect whether `*WithSession` or `*WithoutSession` base is used
+and will pass session, create logger with `api.{service.__name__}` name, accessible via `service.logger`, 
+and will pass request headers to `service._container.headers`. 
 
 ### Contribution, Bug Reports
 
