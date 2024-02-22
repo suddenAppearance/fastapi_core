@@ -17,7 +17,7 @@ class BaseRepository(abc.ABC, Generic[T]):
         await self.session.refresh(obj)
         return obj
 
-    async def one_or_none(self, statement) -> T | None:
+    async def one_or_none(self, statement: Select | CompoundSelect) -> T | None:
         return (await self.session.execute(statement)).scalars().one_or_none()
 
     async def add_all(self, objs: list):
@@ -29,5 +29,5 @@ class BaseRepository(abc.ABC, Generic[T]):
     async def execute(self, statement: Select | Update | Delete):
         return await self.session.execute(statement)
 
-    async def first(self, statement: Select) -> T | None:
+    async def first(self, statement: Select | CompoundSelect) -> T | None:
         return (await self.session.execute(statement)).scalars().first()

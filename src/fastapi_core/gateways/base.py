@@ -99,7 +99,7 @@ logger = logging.getLogger("api.gateway")
 
 
 async def log_response(response: Response):
-    logger.debug(f"\"{response.url}\" {response.status_code} {response.reason_phrase}")
+    logger.debug(f"\"{response.request.method} {response.url}\" {response.status_code} {response.reason_phrase}")
 
 
 def get_async_client(url: AnyHttpUrl, **kwargs: Any):
