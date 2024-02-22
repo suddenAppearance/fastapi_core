@@ -74,7 +74,7 @@ class RepositoryExample(BaseRepository[ExampleModel]):
         # wrapper for await session.execute() for convenience
         return await self.execute(statement)
 ```
-Commit is done after right before the request is returned. If transaction fails - it rolls back, releases connection
+Commit is done right before the request is returned. If transaction fails - it rolls back, releases connection
 and returns 500.
 
 Service layer classes can also optionally use transactions:
