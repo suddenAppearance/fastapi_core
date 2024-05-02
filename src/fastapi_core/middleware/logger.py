@@ -4,7 +4,7 @@ from fastapi.requests import Request
 from loguru import logger
 
 
-async def json_exceptions_wrapper_middleware(request: Request, call_next: Callable[[Request], Awaitable]):
+async def logger_context_middleware(request: Request, call_next: Callable[[Request], Awaitable]):
     """
     JSONResponse exception wrapping
     """
