@@ -4,6 +4,8 @@ from typing import Awaitable, Callable, Any
 from fastapi.requests import Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from fastapi_core.logging import get_logger
+
 
 class LazySession:
     def __init__(self, factory: Callable[[], AsyncSession], logger: logging.Logger):
@@ -20,7 +22,7 @@ class LazySession:
 
 
 def transactional_middleware_factory(create_async_session: Callable[[], AsyncSession]):
-    logger = logging.getLogger("api.middleware.session")
+    logger = get_logger("api.middleware.session")
 
     async def transactional_middleware(request: Request, call_next: Callable[[Request], Awaitable]):
         lazy_session = LazySession(factory=create_async_session, logger=logger)

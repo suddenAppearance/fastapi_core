@@ -1,4 +1,3 @@
-import logging
 from abc import ABC
 from functools import partial
 from typing import Callable, ClassVar, Mapping, ParamSpec, Type, TypeVar, Any
@@ -8,6 +7,7 @@ from httpx import AsyncClient, Response
 from pydantic import AnyHttpUrl, TypeAdapter
 
 from fastapi_core.gateways.exceptions import InterServiceContractMismatchException
+from fastapi_core.logging import get_logger
 from fastapi_core.settings.httpx import HTTPXConfig
 
 P = ParamSpec("P")
@@ -95,7 +95,7 @@ class PathMappable(ABC):
         return cls.path_mapping[key]
 
 
-logger = logging.getLogger("api.gateway")
+logger = get_logger("api.gateway")
 
 
 async def log_response(response: Response):

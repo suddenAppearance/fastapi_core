@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastapi-core"
-version = "0.3.26"
+version = "0.4.0"
 description = "Reusable core components for FastAPI MVC project"
 authors = ["Damir Kuzovatov <Damir.Kuzovatov@waveaccess.global>"]
 license = "MIT"
@@ -17,12 +17,14 @@ httpx = {version = "^0.26.0", optional = true}
 alembic = {version = "^1.13.1", optional = true}
 psycopg2-binary = {version = "^2.9.9", optional = true}
 asyncpg = {version = "^0.29.0", optional = true}
+loguru = {version = "^0.7.2", optional = true}
 
 
 [tool.poetry.extras]
 database = ["sqlalchemy", "alembic", "psycopg2-binary", "asyncpg"]
 gateway = ["httpx"]
 validation = ["pydantic", "pydantic-settings"]
+logging = ["loguru"]
 all = [
     "sqlalchemy",
     "alembic",
@@ -31,6 +33,7 @@ all = [
     "httpx",
     "pydantic",
     "pydantic-settings",
+    "loguru"
 ]
 
 

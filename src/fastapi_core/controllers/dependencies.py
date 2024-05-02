@@ -1,8 +1,8 @@
-import logging
 from typing import Type, TypeVar, Callable
 
 from starlette.requests import Request
 
+from fastapi_core.logging import get_logger
 from fastapi_core.services.base import BaseServiceWithSession
 
 try:
@@ -15,7 +15,7 @@ T = TypeVar("T")
 
 
 def get_service(service: Type[T]) -> Callable[..., T]:
-    logger = logging.getLogger(f"api.{service.__name__}")
+    logger = get_logger(f"api.{service.__name__}")
 
     db = issubclass(service, BaseServiceWithSession)
 
