@@ -34,15 +34,14 @@ class ClickHouseSink:
 
     async def conn(self):
         from asynch import connect
-        if not self._conn:
-            self._conn = await connect(
-                host=self.clickhouse_url.host,
-                port=self.clickhouse_url.port,
-                database=self.clickhouse_url.path.lstrip("/"),
-                user=self.clickhouse_url.username or "default",
-                password=self.clickhouse_url.password or ""
-            )
-        return self._conn
+
+        return await connect(
+            host=self.clickhouse_url.host,
+            port=self.clickhouse_url.port,
+            database=self.clickhouse_url.path.lstrip("/"),
+            user=self.clickhouse_url.username or "default",
+            password=self.clickhouse_url.password or ""
+        )
 
     async def sink(self, message: loguru.Message):
         from asynch.cursors import DictCursor
