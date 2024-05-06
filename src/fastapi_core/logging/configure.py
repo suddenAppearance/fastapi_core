@@ -17,7 +17,7 @@ def configure_logger(sink: Handler | None = None):
         if name.startswith("uvicorn.")
     )
     for uvicorn_logger in loggers:
-        uvicorn_logger.handlers = []
+        uvicorn_logger.handlers = [sink]
 
     logging.getLogger("uvicorn").handlers = [sink]
 
