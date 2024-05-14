@@ -22,5 +22,5 @@ def configure_logger(sink: Handler | None = None):
     logging.getLogger("uvicorn").handlers = [sink]
 
     logger.configure(
-        handlers=[{"sink": sys.stderr, "level": logging.DEBUG, "format": LOGURU_FORMAT}]
+        handlers=[{"sink": sys.stderr, "level": logging.DEBUG, "format": LOGURU_FORMAT, "enqueue": True}]
     )
