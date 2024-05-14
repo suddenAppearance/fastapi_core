@@ -99,6 +99,8 @@ logger = get_logger("api.gateway")
 
 
 async def log_response(response: Response):
+    await response.aread()  # this has to be done to deal with .elapsed when logging
+
     logger.debug(
         " ".join(
             (
