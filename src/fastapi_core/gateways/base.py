@@ -99,7 +99,17 @@ logger = get_logger("api.gateway")
 
 
 async def log_response(response: Response):
-    logger.debug(f"\"{response.request.method} {response.url}\" {response.status_code} {response.reason_phrase}")
+    logger.debug(
+        " ".join(
+            (
+                response.request.method,
+                response.url,
+                str(response.status_code),
+                response.reason_phrase,
+                f"{round(response.elapsed.total_seconds() * 1000)}ms",
+            )
+        )
+    )
 
 
 def get_async_client(url: AnyHttpUrl, **kwargs: Any):
@@ -110,5 +120,5 @@ def get_async_client(url: AnyHttpUrl, **kwargs: Any):
             "response": [log_response],
         },
         timeout=HTTPXConfig().get_timeout(),
-        **kwargs
+        **kwargs,
     )
