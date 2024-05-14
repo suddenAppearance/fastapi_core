@@ -105,7 +105,7 @@ async def log_response(response: Response):
         " ".join(
             (
                 response.request.method,
-                response.url,
+                str(response.url),
                 str(response.status_code),
                 response.reason_phrase,
                 f"{round(response.elapsed.total_seconds() * 1000)}ms",
