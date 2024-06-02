@@ -34,7 +34,8 @@ def _mapped(
     def decorator(func: Callable[P, Select]) -> Callable[P, Awaitable[S | list[S] | None]]:
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> S | list[S] | None:
             statement = func(*args, **kwargs)
-            statement = statement.options(defer(*(getattr(from_model, key) for key in extra_columns)))
+            if extra_columns:
+                statement = statement.options(defer(*(getattr(from_model, key) for key in extra_columns)))
             repo: BaseRepository[M] = args[0]
             if to_list:
                 result = await repo.all(statement)
