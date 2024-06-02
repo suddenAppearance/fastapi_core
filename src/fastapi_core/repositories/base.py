@@ -20,6 +20,9 @@ class BaseRepository(abc.ABC, Generic[T]):
     async def one_or_none(self, statement: Select | CompoundSelect) -> T | None:
         return (await self.session.execute(statement)).scalars().one_or_none()
 
+    async def one(self, statement: Select | CompoundSelect) -> T:
+        return (await self.session.execute(statement)).scalars().one()
+
     async def add_all(self, objs: list):
         self.session.add_all(objs)
 
