@@ -1,6 +1,6 @@
 from typing import TypeVar, Awaitable, Callable, ParamSpec, get_args, get_origin, Type
 
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, BaseModel
 from sqlalchemy import Select
 from sqlalchemy.orm import DeclarativeBase, defer
 
@@ -14,11 +14,15 @@ P = ParamSpec("P")
 def _mapped(
     from_model: M, to_schema: S, to_list: bool = False, optional: bool = False
 ) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | list[S] | None]]]:
+    initial_type = to_schema
     to_schema = TypeAdapter(to_schema)
     list_to_schema = TypeAdapter(list[S])
     database_columns: set[str] = set(from_model.__table__.columns.keys())
-    schema_columns = to_schema.core_schema["cls"].model_fields.keys()
-    extra_columns = database_columns - schema_columns
+    if issubclass(initial_type, BaseModel):
+        schema_columns = initial_type.model_fields.keys()
+        extra_columns = database_columns - schema_columns
+    else:
+        extra_columns = set()
 
     def decorator(func: Callable[P, Select]) -> Callable[P, Awaitable[S | list[S] | None]]:
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> S | list[S] | None:
