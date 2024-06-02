@@ -1,4 +1,4 @@
-from typing import TypeVar, Awaitable, Callable, ParamSpec, get_args, get_origin
+from typing import TypeVar, Awaitable, Callable, ParamSpec, get_args, get_origin, Type
 
 from pydantic import TypeAdapter
 from sqlalchemy import Select
@@ -45,7 +45,7 @@ def _mapped(
     return decorator
 
 
-def mapped(from_model: M, to_schema: S) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
+def mapped(from_model: M, to_schema: Type[S]) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
     if get_origin(to_schema) is list:
         return _mapped(from_model, to_schema, to_list=True)
     elif any(t is type(None) for t in get_args(to_schema)):
