@@ -16,9 +16,16 @@ def _mapped(
 ) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | list[S] | None]]]:
     initial_type = to_schema
     to_schema = TypeAdapter(to_schema)
+    try:
+        is_pydantic = issubclass(initial_type, BaseModel)
+    except TypeError:
+        is_pydantic = False
+
     list_to_schema = TypeAdapter(list[S])
-    database_columns: set[str] = set(from_model.__table__.columns.keys())
-    if issubclass(initial_type, BaseModel):
+
+    if is_pydantic:
+        initial_type: Type[BaseModel]
+        database_columns: set[str] = set(from_model.__table__.columns.keys())
         schema_columns = initial_type.model_fields.keys()
         extra_columns = database_columns - schema_columns
     else:
@@ -51,7 +58,7 @@ def _mapped(
 
 def mapped(from_model: M, to_schema: Type[S]) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
     if get_origin(to_schema) is list:
-        return _mapped(from_model, to_schema, to_list=True)
+        return _mapped(from_model, get_args(to_schema)[0], to_list=True)
     elif any(t is type(None) for t in get_args(to_schema)):
         return _mapped(from_model, to_schema, optional=True)
     return _mapped(from_model, to_schema)
