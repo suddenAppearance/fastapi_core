@@ -57,7 +57,7 @@ def _mapped(
     return decorator
 
 
-def mapped(from_model: M, to_schema: Type[S]) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
+def mapped(from_model: M, to_schema: Type[S] | Type[S | None]) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
     if get_origin(to_schema) is list:
         return _mapped(from_model, get_args(to_schema)[0], to_list=True)
     elif any(t is type(None) for t in get_args(to_schema)):
