@@ -1,4 +1,4 @@
-from typing import TypeVar, Awaitable, Callable, ParamSpec, get_args, get_origin, Type
+from typing import TypeVar, Awaitable, Callable, ParamSpec, get_args, get_origin, Type, overload
 
 from pydantic import TypeAdapter, BaseModel
 from sqlalchemy import Select
@@ -12,11 +12,10 @@ S = TypeVar("S")
 M = TypeVar("M", bound=type[DeclarativeBase])
 P = ParamSpec("P")
 
-
 logger = get_logger("api.mappers")
 
-
 settings = DatabaseSettings()
+
 
 def _mapped(
     from_model: M | None, to_schema: S, to_list: bool = False, optional: bool = False
@@ -73,7 +72,23 @@ def _mapped(
     return decorator
 
 
-def mapped(from_model: M | None, to_schema: Type[S] | Type[S | None]) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
+@overload
+def mapped(
+    from_model: M | None, to_schema: Type[S]
+) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
+    ...
+
+
+@overload
+def mapped(
+    from_model: M | None, to_schema: Type[S | None]
+) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | None]]]:
+    ...
+
+
+def mapped(
+    from_model: M | None, to_schema: Type[S | None]
+) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | None]]]:
     if get_origin(to_schema) is list:
         return _mapped(from_model, get_args(to_schema)[0], to_list=True)
     elif any(t is type(None) for t in get_args(to_schema)):
