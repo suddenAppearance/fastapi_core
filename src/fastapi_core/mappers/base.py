@@ -54,11 +54,11 @@ def _mapped(
                 result = result.mappings()
 
             if to_list:
-                result = result.all(statement)
+                result = result.all()
             elif optional:
-                result = result.one_or_none(statement)
+                result = result.one_or_none()
             else:
-                result = result.one(statement)
+                result = result.one()
 
             if result is None:
                 return None
