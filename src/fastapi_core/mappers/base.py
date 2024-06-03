@@ -4,12 +4,19 @@ from pydantic import TypeAdapter, BaseModel
 from sqlalchemy import Select
 from sqlalchemy.orm import DeclarativeBase, defer
 
+from fastapi_core.logging import get_logger
 from fastapi_core.repositories.base import BaseRepository
+from fastapi_core.settings.database import DatabaseSettings
 
 S = TypeVar("S")
 M = TypeVar("M", bound=type[DeclarativeBase])
 P = ParamSpec("P")
 
+
+logger = get_logger("api.mappers")
+
+
+settings = DatabaseSettings()
 
 def _mapped(
     from_model: M, to_schema: S, to_list: bool = False, optional: bool = False
@@ -37,6 +44,8 @@ def _mapped(
             if extra_columns:
                 statement = statement.options(defer(*(getattr(from_model, key) for key in extra_columns)))
             repo: BaseRepository[M] = args[0]
+            if settings.SQL_ENGINE_ECHO:
+                logger.debug(f"{statement.compile()}")
             if to_list:
                 result = await repo.all(statement)
             elif optional:
