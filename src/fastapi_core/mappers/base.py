@@ -19,7 +19,7 @@ logger = get_logger("api.mappers")
 settings = DatabaseSettings()
 
 def _mapped(
-    from_model: M, to_schema: S, to_list: bool = False, optional: bool = False
+    from_model: M | None, to_schema: S, to_list: bool = False, optional: bool = False
 ) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | list[S] | None]]]:
     initial_type = to_schema
     to_schema = TypeAdapter(to_schema)
@@ -30,7 +30,7 @@ def _mapped(
 
     list_to_schema = TypeAdapter(list[S])
 
-    if is_pydantic:
+    if is_pydantic and from_model is not None:
         initial_type: Type[BaseModel]
         database_columns: set[str] = set(from_model.__table__.columns.keys())
         schema_columns = initial_type.model_fields.keys()
@@ -46,12 +46,19 @@ def _mapped(
             repo: BaseRepository[M] = args[0]
             if settings.SQL_ENGINE_ECHO:
                 logger.debug(f"{statement.compile()}")
-            if to_list:
-                result = await repo.all(statement)
-            elif optional:
-                result = await repo.one_or_none(statement)
+
+            result = await repo.execute(statement)
+            if from_model is not None:
+                result = result.scalars()
             else:
-                result = await repo.one(statement)
+                result = result.mappings()
+
+            if to_list:
+                result = result.all(statement)
+            elif optional:
+                result = result.one_or_none(statement)
+            else:
+                result = result.one(statement)
 
             if result is None:
                 return None
@@ -66,7 +73,7 @@ def _mapped(
     return decorator
 
 
-def mapped(from_model: M, to_schema: Type[S] | Type[S | None]) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
+def mapped(from_model: M | None, to_schema: Type[S] | Type[S | None]) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
     if get_origin(to_schema) is list:
         return _mapped(from_model, get_args(to_schema)[0], to_list=True)
     elif any(t is type(None) for t in get_args(to_schema)):
