@@ -18,7 +18,7 @@ settings = DatabaseSettings()
 
 
 def _mapped(
-    from_model: M | None, to_schema: S, to_list: bool = False, optional: bool = False
+    from_model: M | None, to_schema: S, to_list: bool = False
 ) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | list[S] | None]]]:
     initial_type = to_schema
     to_schema = TypeAdapter(to_schema)
@@ -54,13 +54,8 @@ def _mapped(
 
             if to_list:
                 result = result.all()
-            elif optional:
-                result = result.one_or_none()
             else:
-                result = result.one()
-
-            if result is None:
-                return None
+                result = result.one_or_none()
 
             if not to_list:
                 return to_schema.validate_python(result)
@@ -91,6 +86,4 @@ def mapped(
 ) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | None]]]:
     if get_origin(to_schema) is list:
         return _mapped(from_model, get_args(to_schema)[0], to_list=True)
-    elif any(t is type(None) for t in get_args(to_schema)):
-        return _mapped(from_model, to_schema, optional=True)
     return _mapped(from_model, to_schema)
