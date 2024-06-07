@@ -1,4 +1,4 @@
-from typing import TypeVar, Awaitable, Callable, ParamSpec, get_args, get_origin, Type, overload
+from typing import TypeVar, Awaitable, Callable, ParamSpec, get_args, get_origin, Type, overload, Literal
 
 from pydantic import TypeAdapter, BaseModel
 from sqlalchemy import Select
@@ -18,7 +18,7 @@ settings = DatabaseSettings()
 
 
 def _mapped(
-    from_model: M | None, to_schema: S, to_list: bool = False
+    from_model: M | None, to_schema: S, to_list: bool = False, optional: bool = False
 ) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | list[S] | None]]]:
     initial_type = to_schema
     to_schema = TypeAdapter(to_schema)
@@ -47,6 +47,9 @@ def _mapped(
                 logger.debug(f"{statement.compile()}")
 
             result = await repo.execute(statement)
+            if result is None and optional:
+                return result
+
             if from_model is not None:
                 result = result.scalars()
             else:
@@ -69,21 +72,21 @@ def _mapped(
 
 @overload
 def mapped(
-    from_model: M | None, to_schema: Type[S]
+    from_model: M | None, to_schema: Type[S], optional: Literal[False] = False
 ) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S]]]:
     ...
 
 
 @overload
 def mapped(
-    from_model: M | None, to_schema: Type[S | None]
+    from_model: M | None, to_schema: Type[S], optional: Literal[True] = False
 ) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | None]]]:
     ...
 
 
 def mapped(
-    from_model: M | None, to_schema: Type[S | None]
+    from_model: M | None, to_schema: Type[S | None], optional: bool = False
 ) -> Callable[[Callable[P, Select]], Callable[P, Awaitable[S | None]]]:
     if get_origin(to_schema) is list:
-        return _mapped(from_model, get_args(to_schema)[0], to_list=True)
-    return _mapped(from_model, to_schema)
+        return _mapped(from_model, get_args(to_schema)[0], to_list=True, optional=optional)
+    return _mapped(from_model, to_schema, optional=optional)
