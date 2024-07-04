@@ -27,7 +27,7 @@ def _mapped(
     except TypeError:
         is_pydantic = False
 
-    list_to_schema = TypeAdapter(list[S])
+    list_to_schema = TypeAdapter(list[initial_type])
 
     if is_pydantic and from_model is not None:
         initial_type: Type[BaseModel]
