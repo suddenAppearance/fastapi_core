@@ -47,8 +47,6 @@ def _mapped(
                 logger.debug(f"{statement.compile()}")
 
             result = await repo.execute(statement)
-            if result is None and optional:
-                return result
 
             if from_model is not None:
                 result = result.scalars()
@@ -59,6 +57,9 @@ def _mapped(
                 result = result.all()
             else:
                 result = result.one_or_none()
+
+            if result is None and optional:
+                return result
 
             if not to_list:
                 return to_schema.validate_python(result)
